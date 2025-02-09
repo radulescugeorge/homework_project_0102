@@ -1,59 +1,87 @@
 package ro.itschool.homework_project_0102.service;
 
 import org.springframework.stereotype.Service;
-import ro.itschool.homework_project_0102.model.Laptop;
+import ro.itschool.homework_project_0102.dto.LaptopDto;
+import ro.itschool.homework_project_0102.mapper.ObjectMapper;
+import ro.itschool.homework_project_0102.persistence.entity.Laptop;
+import ro.itschool.homework_project_0102.persistence.repository.LaptopRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class LaptopService {
 
-    private static final List<Laptop> LAPTOPS = new ArrayList<>();
 
-    public List<Laptop> getAllLaptops(){
-        return LAPTOPS;
+    private final LaptopRepository laptopRepository;
+    private final ObjectMapper<LaptopDto, Laptop> laptopMapper;
+
+    public LaptopService(LaptopRepository laptopRepository,
+                         ObjectMapper<LaptopDto, Laptop> laptopMapper) {
+        this.laptopRepository = laptopRepository;
+        this.laptopMapper = laptopMapper;
     }
 
-    public Laptop getLaptopById(int id){
-        return LAPTOPS.stream()
-                .filter(l -> l.getId() == id)
-                .findFirst()
-                .orElse(null);
+    public List<LaptopDto> getLaptopsByMake(String make){
+        List<Laptop> laptopsByMake = laptopRepository.getLaptopsByMake(make);
+        return laptopsByMake.stream()
+                .map(laptopMapper::mapToDto)
+                .toList();
     }
 
-    public void addLaptop(Laptop laptop){
-        LAPTOPS.add(laptop);
+    public List<LaptopDto> getLaptopsByMakeAndModel(String make, String model){
+
+        // List<Laptop> laptops = laptopRepository.findLaptopsByNameNative(make, model)
+
+        List<Laptop> laptops = laptopRepository.findLaptopsByNameJPQL(make, model);
+        return laptops.stream()
+                .map(laptopMapper::mapToDto)
+                .toList();
     }
 
-    public void deleteLaptopById(int id){
-        LAPTOPS.removeIf(l->l.getId() == id);
+    public List<LaptopDto> getAllLaptops() {
+        List<Laptop> allLaptops = laptopRepository.findAll();
+        return allLaptops.stream()
+                .map(laptopMapper::mapToDto)
+                .toList();
     }
 
-    public void updateLaptop(Laptop laptop, Laptop existingLaptop){
+    public LaptopDto getLaptopById(int id) {
+        Laptop laptopById = laptopRepository.getReferenceById(id);
+        return laptopMapper.mapToDto(laptopById);
+    }
 
-        if(laptop.getMake() != null){
-            existingLaptop.setMake(laptop.getMake());
+    public void addLaptop(LaptopDto laptopDto) {
+        Laptop laptop = laptopMapper.mapToEntity(laptopDto);
+        laptopRepository.save(laptop);
+    }
+
+    public void deleteLaptopById(int id) {
+        laptopRepository.deleteById(id);
+    }
+
+    public void updateLaptop(LaptopDto laptopDto, LaptopDto existingLaptopDto) {
+
+        if (laptopDto.getMake() != null) {
+            existingLaptopDto.setMake(laptopDto.getMake());
         }
-        if(laptop.getModel() != null){
-            existingLaptop.setModel(laptop.getModel());
+        if (laptopDto.getModel() != null) {
+            existingLaptopDto.setModel(laptopDto.getModel());
         }
-        if(laptop.getSsdCapacity() != 0){
-            existingLaptop.setSsdCapacity(laptop.getSsdCapacity());
+        if (laptopDto.getSsdCapacity() != 0) {
+            existingLaptopDto.setSsdCapacity(laptopDto.getSsdCapacity());
         }
-        if(laptop.getRamCapacity() != 0){
-            existingLaptop.setRamCapacity(laptop.getRamCapacity());
+        if (laptopDto.getRamCapacity() != 0) {
+            existingLaptopDto.setRamCapacity(laptopDto.getRamCapacity());
         }
     }
 
 
-    public void replaceLaptop(Laptop laptop, Laptop existingLaptop){
-        existingLaptop.setMake(laptop.getMake());
-        existingLaptop.setModel(laptop.getModel());
-        existingLaptop.setSsdCapacity(laptop.getSsdCapacity());
-        existingLaptop.setRamCapacity(laptop.getRamCapacity());
+    public void replaceLaptop(LaptopDto laptopDto, LaptopDto existingLaptopDto) {
+        existingLaptopDto.setMake(laptopDto.getMake());
+        existingLaptopDto.setModel(laptopDto.getModel());
+        existingLaptopDto.setSsdCapacity(laptopDto.getSsdCapacity());
+        existingLaptopDto.setRamCapacity(laptopDto.getRamCapacity());
     }
-
 
 
 }

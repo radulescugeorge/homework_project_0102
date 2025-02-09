@@ -1,4 +1,4 @@
-package ro.itschool.homework_project_0102.model;
+package ro.itschool.homework_project_0102.dto;
 
 
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @AllArgsConstructor
-public class Laptop {
+public class LaptopDto {
 
     private final int id;
     private String make;
