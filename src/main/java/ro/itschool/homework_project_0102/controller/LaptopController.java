@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ro.itschool.homework_project_0102.dto.LaptopDto;
+import ro.itschool.homework_project_0102.mapper.impl.LaptopMapper;
 import ro.itschool.homework_project_0102.service.LaptopService;
 
 import java.util.List;
@@ -13,9 +14,11 @@ import java.util.List;
 public class LaptopController {
 
     private final LaptopService laptopService;
+    private final LaptopMapper laptopMapper;
 
-    public LaptopController(LaptopService laptopService){
+    public LaptopController(LaptopService laptopService, LaptopMapper laptopMapper){
         this.laptopService = laptopService;
+        this.laptopMapper = laptopMapper;
     }
 
     @GetMapping
@@ -25,7 +28,8 @@ public class LaptopController {
 
     @GetMapping("/{id}")
     public ResponseEntity<LaptopDto> getLaptopById(@PathVariable int id){
-        LaptopDto laptopDtoById = laptopService.getLaptopById(id);
+        LaptopDto laptopDtoById = laptopMapper.mapToDto(laptopService.getLaptopById(id));
+
         if(laptopDtoById == null){
             return ResponseEntity.notFound().build();
         }
@@ -55,23 +59,24 @@ public class LaptopController {
     public ResponseEntity<LaptopDto> updateLaptopById(@PathVariable int id,
                                                       @RequestBody LaptopDto laptopDto){
 
-        LaptopDto existingLaptopDto = laptopService.getLaptopById(id);
-        if(existingLaptopDto == null){
+        LaptopDto updatedLaptop = laptopService.updateLaptop(id, laptopDto);
+
+        if(updatedLaptop == null){
             return ResponseEntity.notFound().build();
         }
-        laptopService.updateLaptop(laptopDto, existingLaptopDto);
-        return ResponseEntity.ok(existingLaptopDto);
+        return ResponseEntity.ok(updatedLaptop);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<LaptopDto> replaceLaptop(@PathVariable int id,
                                                    @RequestBody LaptopDto laptopDto){
-        LaptopDto existingLaptopDto = laptopService.getLaptopById(id);
-        if(existingLaptopDto == null){
+
+        LaptopDto updatedLaptop = laptopService.updateLaptop(id, laptopDto);
+
+        if(updatedLaptop == null){
             return ResponseEntity.notFound().build();
         }
-        laptopService.replaceLaptop(laptopDto, existingLaptopDto);
-        return ResponseEntity.ok(existingLaptopDto);
+        return ResponseEntity.ok(updatedLaptop);
     }
 
     @DeleteMapping("/{id}")

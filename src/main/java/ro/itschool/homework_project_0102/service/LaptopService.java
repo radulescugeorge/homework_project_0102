@@ -45,9 +45,8 @@ public class LaptopService {
                 .toList();
     }
 
-    public LaptopDto getLaptopById(int id) {
-        Laptop laptopById = laptopRepository.getReferenceById(id);
-        return laptopMapper.mapToDto(laptopById);
+    public Laptop getLaptopById(int id) {
+       return laptopRepository.findById(id).orElse(null);
     }
 
     public void addLaptop(LaptopDto laptopDto) {
@@ -59,28 +58,39 @@ public class LaptopService {
         laptopRepository.deleteById(id);
     }
 
-    public void updateLaptop(LaptopDto laptopDto, LaptopDto existingLaptopDto) {
+    public LaptopDto updateLaptop(int id, LaptopDto laptopDto) {
+
+        Laptop existingLaptop = getLaptopById(id);
+
+        if(existingLaptop == null) return null;
 
         if (laptopDto.getMake() != null) {
-            existingLaptopDto.setMake(laptopDto.getMake());
+            existingLaptop.setMake(laptopDto.getMake());
         }
         if (laptopDto.getModel() != null) {
-            existingLaptopDto.setModel(laptopDto.getModel());
+            existingLaptop.setModel(laptopDto.getModel());
         }
         if (laptopDto.getSsdCapacity() != 0) {
-            existingLaptopDto.setSsdCapacity(laptopDto.getSsdCapacity());
+            existingLaptop.setSsdCapacity(laptopDto.getSsdCapacity());
         }
         if (laptopDto.getRamCapacity() != 0) {
-            existingLaptopDto.setRamCapacity(laptopDto.getRamCapacity());
+            existingLaptop.setRamCapacity(laptopDto.getRamCapacity());
         }
+
+        return laptopMapper.mapToDto(laptopRepository.save(existingLaptop));
     }
 
 
-    public void replaceLaptop(LaptopDto laptopDto, LaptopDto existingLaptopDto) {
-        existingLaptopDto.setMake(laptopDto.getMake());
-        existingLaptopDto.setModel(laptopDto.getModel());
-        existingLaptopDto.setSsdCapacity(laptopDto.getSsdCapacity());
-        existingLaptopDto.setRamCapacity(laptopDto.getRamCapacity());
+    public LaptopDto replaceLaptop(int id, LaptopDto laptopDto) {
+
+        Laptop existingLaptop = getLaptopById(id);
+
+        existingLaptop.setMake(laptopDto.getMake());
+        existingLaptop.setModel(laptopDto.getModel());
+        existingLaptop.setSsdCapacity(laptopDto.getSsdCapacity());
+        existingLaptop.setRamCapacity(laptopDto.getRamCapacity());
+
+        return laptopMapper.mapToDto(laptopRepository.save(existingLaptop));
     }
 
 
